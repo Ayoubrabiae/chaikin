@@ -41,7 +41,7 @@ async fn main() {
             }
         }
 
-        if is_key_pressed(KeyCode::Enter) {
+        if is_key_pressed(KeyCode::Enter) && circles.len() > 1 {
             paint = true;
         }
 
@@ -50,6 +50,10 @@ async fn main() {
             anim_num = 0;
             paint = false;
             circles.clear();
+        }
+
+        if is_key_pressed(KeyCode::Escape) {
+            break;
         }
 
         let mouse_pos = mouse_position();
