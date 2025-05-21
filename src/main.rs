@@ -50,6 +50,7 @@ async fn main() {
             anim_num = 0;
             paint = false;
             circles.clear();
+            selected_circle = None;
         }
 
         if is_key_pressed(KeyCode::Escape) {
@@ -58,7 +59,7 @@ async fn main() {
 
         let mouse_pos = mouse_position();
         
-        if is_mouse_button_pressed(MouseButton::Left) && !paint {
+        if is_mouse_button_pressed(MouseButton::Left) {
             let mut clicked_on_circle = false;
             
             for (i, &pos) in circles.iter().enumerate() {
@@ -69,13 +70,13 @@ async fn main() {
                 }
             }
             
-            if !clicked_on_circle {
+            if !clicked_on_circle && !paint {
                 circles.push(vec2(mouse_pos.0, mouse_pos.1));
                 selected_circle = Some(circles.len() - 1);
             }
         }
         
-        if is_mouse_button_pressed(MouseButton::Right) {
+        if is_mouse_button_pressed(MouseButton::Right) && !paint {
             let mut circle_to_remove = None;
             
             for (i, &pos) in circles.iter().enumerate() {
@@ -90,7 +91,7 @@ async fn main() {
                 selected_circle = None;
             }
         }
-        
+
         if let Some(index) = selected_circle {
             if is_mouse_button_down(MouseButton::Left) {
                 circles[index] = vec2(mouse_pos.0, mouse_pos.1);
