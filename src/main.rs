@@ -6,6 +6,8 @@ async fn main() {
     let mut selected_circle: Option<usize> = None;
     let circle_radius = 3.0;
     let mut paint = false;
+    let mut anim_num = 0;
+    let mut counter = 0;
     
     loop {
         clear_background(BLACK);
@@ -13,20 +15,28 @@ async fn main() {
         if paint {
             let mut new_ps = circles.clone();
 
-            for _ in 0..7 {
+            for _ in 0..anim_num {
                 new_ps = chaikin(&new_ps);
             }
-
+                
             for (i, c) in new_ps.iter().enumerate() {
-                // println!("{:?}", c);
                 if i+1 == new_ps.len() {
                     break;
                 }
-
+                
                 draw_line(c.x, c.y, new_ps[i+1].x, new_ps[i+1].y, 2.0, BLUE);
             }
 
-
+            if counter == 20 {
+                counter = 0;
+                if anim_num != 7 {
+                    anim_num += 1;
+                } else {
+                    anim_num = 0;
+                }
+            } else {
+                counter += 1;
+            }
         }
 
         if is_key_pressed(KeyCode::Enter) {
@@ -34,6 +44,8 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Space) {
+            counter = 0;
+            anim_num = 0;
             paint = false;
             circles.clear();
         }
@@ -96,7 +108,7 @@ async fn main() {
             draw_circle_lines(pos.x, pos.y, size, 1.0, color);
         }
                 
-        next_frame().await
+        next_frame().await;
     }
 }
 
@@ -107,28 +119,24 @@ fn distance(point1: (f32, f32), point2: Vec2) -> f32 {
     (dx * dx + dy * dy).sqrt()
 }
 
-fn chaikin(points: &Vec<Vec2>) -> Vec<Vec2> {
-    let mut new_points: Vec<Vec2> = Vec::new();
-
-    for (i, c) in points.iter().enumerate() {
-        if i+1 == points.len() {
-            break;
+pub fn chaikin(arr: &Vec<Vec2>) -> Vec<Vec2> {
+    let mut v : Vec<Vec2> = Vec::new();
+    let mut index : usize = 1;
+    let arr_size : usize = arr.len() as usize;
+    let mut visited = vec2(-1.0, -1.0);
+    while index < arr_size {
+        let q = vec2(0.75 * arr[index - 1].x  + (0.25 * arr[index].x ), 0.75 * arr[index - 1].y  + (0.25 * arr[index].y ));
+        let r = vec2(0.25 * arr[index - 1].x  + (0.75 * arr[index].x ), 0.25 * arr[index - 1].y  + (0.75 * arr[index].y ));
+        if visited[0] != arr[index - 1].x || visited[1] != arr[index - 1].y {
+            v.push(arr[index - 1]);
         }
-
-        let p0 = c;
-        let p1 = points[i+1];
-        let q = vec2(0.75*p0[0]+0.25*p1[0], 0.75*p0[1]+0.25*p1[1]);
-        let r = vec2(0.25*p0[0]+0.75*p1[0], 0.25*p0[1]+0.75*p1[1]);
-
-        // if i % 2 == 0 {
-        //     new_points.push(p0.clone());
-        // } else {
-        //     new_points.push(p1);
-        // }
-
-        new_points.push(q);
-        new_points.push(r);
+        visited = arr[index];
+        v.push(q);
+        v.push(r);
+        index += 1;
     }
-
-    new_points
+    v.push(visited);
+    v
 }
+
+ 
